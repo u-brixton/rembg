@@ -1,6 +1,6 @@
-import functools
 import io
 
+import functools
 import numpy as np
 from PIL import Image
 from pymatting.alpha.estimate_alpha_cf import estimate_alpha_cf
@@ -12,16 +12,12 @@ from .u2net import detect
 
 
 def alpha_matting_cutout(
-    img,
-    mask,
-    foreground_threshold,
-    background_threshold,
-    erode_structure_size,
-    base_size,
+    img, mask, foreground_threshold, background_threshold, erode_structure_size,
 ):
+    base_size = (1000, 1000)
     size = img.size
 
-    img.thumbnail((base_size, base_size), Image.LANCZOS)
+    img.thumbnail(base_size, Image.LANCZOS)
     mask = mask.resize(img.size, Image.LANCZOS)
 
     img = np.asarray(img)
@@ -72,8 +68,6 @@ def naive_cutout(img, mask):
 def get_model(model_name):
     if model_name == "u2netp":
         return detect.load_model(model_name="u2netp")
-    if model_name == "u2net_human_seg":
-        return detect.load_model(model_name="u2net_human_seg")
     else:
         return detect.load_model(model_name="u2net")
 
@@ -85,24 +79,19 @@ def remove(
     alpha_matting_foreground_threshold=240,
     alpha_matting_background_threshold=10,
     alpha_matting_erode_structure_size=10,
-    alpha_matting_base_size=1000,
 ):
     model = get_model(model_name)
     img = Image.open(io.BytesIO(data)).convert("RGB")
     mask = detect.predict(model, np.array(img)).convert("L")
 
     if alpha_matting:
-        try:
-            cutout = alpha_matting_cutout(
-                img,
-                mask,
-                alpha_matting_foreground_threshold,
-                alpha_matting_background_threshold,
-                alpha_matting_erode_structure_size,
-                alpha_matting_base_size,
-            )
-        except Exception:
-            cutout = naive_cutout(img, mask)
+        cutout = alpha_matting_cutout(
+            img,
+            mask,
+            alpha_matting_foreground_threshold,
+            alpha_matting_background_threshold,
+            alpha_matting_erode_structure_size,
+        )
     else:
         cutout = naive_cutout(img, mask)
 
