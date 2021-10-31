@@ -25,7 +25,7 @@ setup(
     keywords="remove, background, u2net",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
-    python_requires=">=3.8, <4",
+    python_requires=">=3.7, <4",
     install_requires=requireds,
     entry_points={
         "console_scripts": [
